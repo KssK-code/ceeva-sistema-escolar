@@ -21,10 +21,12 @@ const Login = () => {
 
   useEffect(() => {
     const fetchSchoolSettings = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('school_settings')
         .select('school_name, logo_url')
         .single();
+      console.log('School Settings Data:', data);
+      console.log('School Settings Error:', error);
       if (data) setSchoolSettings(data);
     };
     fetchSchoolSettings();
