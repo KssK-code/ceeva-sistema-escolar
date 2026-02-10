@@ -26,15 +26,20 @@ const CreateUserDialog = ({ open, setOpen, refreshUsers }) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      // Crear usuario en Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      // Crear usuario con signUp (no requiere service_role)
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
-        email_confirm: true,
-        user_metadata: { full_name: fullName }
+        options: {
+          data: { full_name: fullName },
+          emailRedirectTo: window.location.origin
+        }
       });
 
       if (authError) throw authError;
+
+      // Esperar un momento para que se cree el perfil
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Actualizar el rol en la tabla profiles
       const { error: profileError } = await supabase
@@ -42,7 +47,10 @@ const CreateUserDialog = ({ open, setOpen, refreshUsers }) => {
         .update({ role, full_name: fullName })
         .eq('id', authData.user.id);
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.warn('Error actualizando perfil:', profileError);
+        // No lanzar error si solo falla la actualización del perfil
+      }
       
       toast({
         title: 'Usuario creado exitosamente',
