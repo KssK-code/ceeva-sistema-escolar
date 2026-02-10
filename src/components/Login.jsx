@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Loader2, LogIn, UserPlus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/customSupabaseClient';
 
 const Login = () => {
   const { signIn, signUp } = useAuth();
@@ -16,6 +17,18 @@ const Login = () => {
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
+  const [schoolSettings, setSchoolSettings] = useState(null);
+
+  useEffect(() => {
+    const fetchSchoolSettings = async () => {
+      const { data } = await supabase
+        .from('school_settings')
+        .select('school_name, logo_url')
+        .single();
+      if (data) setSchoolSettings(data);
+    };
+    fetchSchoolSettings();
+  }, []);
 
   const handleAuthAction = async (e) => {
     e.preventDefault();
@@ -63,12 +76,24 @@ const Login = () => {
             >
               <form onSubmit={handleAuthAction}>
                 <CardHeader className="text-center">
+                  {!isSigningUp && schoolSettings?.logo_url && (
+                    <div className="flex justify-center mb-4">
+                      <img 
+                        src={schoolSettings.logo_url} 
+                        alt="Logo" 
+                        className="h-20 w-20 object-contain"
+                      />
+                    </div>
+                  )}
                   <CardTitle className="text-3xl font-bold gradient-text">
-                    {isSigningUp ? 'Crear Cuenta' : 'CEVM'}
+                    {isSigningUp ? 'Crear Cuenta' : (schoolSettings?.school_name || 'CEVM')}
                   </CardTitle>
                   <CardDescription className="text-white/70">
-                    {isSigningUp ? 'Ingresa tus datos para registrarte' : 'Inicia sesión para continuar'}
+                    {isSigningUp ? 'Ingresa tus datos para registrarte' : 'Sistema de Gestión Educativa'}
                   </CardDescription>
+                  {!isSigningUp && (
+                    <p className="text-white/50 text-sm mt-1">Zapopan, Jalisco</p>
+                  )}
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {isSigningUp && (
