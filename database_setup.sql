@@ -1,8 +1,6 @@
--- Sistema Escolar [NOMBRE_ESCUELA] - Database Schema
+-- CEVM Sistema Virtual - Database Schema
+-- Zapopan, Jalisco
 -- Execute this SQL in your Supabase SQL Editor
-
--- Enable Row Level Security
-ALTER DATABASE postgres SET "app.jwt_secret" TO 'your-jwt-secret';
 
 -- Create profiles table for user management
 CREATE TABLE IF NOT EXISTS profiles (
@@ -17,7 +15,7 @@ CREATE TABLE IF NOT EXISTS profiles (
 -- Create school_settings table
 CREATE TABLE IF NOT EXISTS school_settings (
     id SERIAL PRIMARY KEY,
-    school_name TEXT DEFAULT '[NOMBRE_ESCUELA]',
+    school_name TEXT DEFAULT 'CEVM',
     school_address TEXT,
     school_phone TEXT,
     school_email TEXT,
