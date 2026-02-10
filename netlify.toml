@@ -1,0 +1,21 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# TEMPLATE - Configurar para cada nuevo sistema
+# Reemplazar [PLACEHOLDERS] con datos reales
+
+[context.production.environment]
+  VITE_SUPABASE_URL = "https://[TU-PROJECT-ID].supabase.co"
+  VITE_SUPABASE_ANON_KEY = "[TU-ANON-KEY-AQUI]"
+  VITE_SCHOOL_NAME = "[NOMBRE-DE-TU-ESCUELA]"
+  VITE_SCHOOL_CODE = "[CODIGO-ESCUELA]"
+  VITE_BRANCH_NAME = "[NOMBRE-SUCURSAL]"
