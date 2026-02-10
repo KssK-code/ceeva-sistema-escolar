@@ -55,20 +55,15 @@ const Sidebar = ({ activeSection, setActiveSection, schoolSettings, profile }) =
       className="flex flex-col w-64 bg-slate-900/80 backdrop-blur-lg text-white border-r border-slate-700/50"
     >
       <div className="p-6 flex items-center space-x-4 border-b border-slate-700/50">
-        <img 
-          src="https://splrzhtwaqpdtdiaodmo.supabase.co/storage/v1/object/public/schoolassets/logos/logo_t770697374375.jpeg" 
-          alt="CEVM Logo" 
-          className="h-12 w-12 rounded-full object-cover"
-          onError={(e) => {
-            e.target.style.display = 'none';
-            e.target.nextSibling.style.display = 'flex';
-          }}
-        />
-        <div className="h-12 w-12 rounded-full bg-purple-500 flex items-center justify-center text-2xl font-bold" style={{display: 'none'}}>
-          C
-        </div>
+        {schoolSettings?.logo_url ? (
+          <img src={schoolSettings.logo_url} alt="Logo de la Escuela" className="h-12 w-12 rounded-full object-cover" />
+        ) : (
+          <div className="h-12 w-12 rounded-full bg-purple-500 flex items-center justify-center text-2xl font-bold">
+            {schoolSettings?.school_name ? schoolSettings.school_name.charAt(0) : 'C'}
+          </div>
+        )}
         <div>
-          <p className="font-semibold text-lg">CEVM System</p>
+          <p className="font-semibold text-lg">{schoolSettings?.school_name || 'CEVM System'}</p>
           <p className="text-xs text-slate-400">Zapopan, Jalisco</p>
         </div>
       </div>
