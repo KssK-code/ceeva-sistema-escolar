@@ -14,6 +14,114 @@ import { supabase } from '@/lib/customSupabaseClient';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 
+const CreateUserDialog = ({ open, setOpen, refreshUsers }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [role, setRole] = useState('receptionist');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      // Crear usuario en Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: { full_name: fullName }
+      });
+
+      if (authError) throw authError;
+
+      // Actualizar el rol en la tabla profiles
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ role, full_name: fullName })
+        .eq('id', authData.user.id);
+
+      if (profileError) throw profileError;
+      
+      toast({
+        title: 'Usuario creado exitosamente',
+        description: `${fullName} puede iniciar sesión ahora con ${email}.`,
+      });
+      refreshUsers();
+      setOpen(false);
+      setEmail('');
+      setPassword('');
+      setFullName('');
+      setRole('receptionist');
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error al crear usuario',
+        description: error.message,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="glass-effect border-white/20 text-white">
+        <DialogHeader>
+          <DialogTitle className="gradient-text">Crear Nuevo Usuario</DialogTitle>
+          <DialogDescription className="text-white/60">
+            El usuario podrá iniciar sesión inmediatamente con el email y contraseña proporcionados.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+           <div>
+            <Label htmlFor="fullName" className="text-white/80">Nombre Completo</Label>
+            <Input id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="input-field" required />
+          </div>
+          <div>
+            <Label htmlFor="email" className="text-white/80">Email</Label>
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-field" required />
+          </div>
+          <div>
+            <Label htmlFor="password" className="text-white/80">Contraseña</Label>
+            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input-field" required minLength={6} />
+          </div>
+          <div>
+            <Label htmlFor="role" className="text-white/80">Rol del Usuario</Label>
+            <Select value={role} onValueChange={setRole}>
+              <SelectTrigger className="input-field">
+                <SelectValue placeholder="Seleccionar rol" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="receptionist">
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4" />
+                    Recepcionista
+                  </div>
+                </SelectItem>
+                <SelectItem value="admin">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4" />
+                    Administrador
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild><Button type="button" variant="secondary" className="btn-secondary">Cancelar</Button></DialogClose>
+            <Button type="submit" className="btn-primary" disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Crear Usuario
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const InviteUserDialog = ({ open, setOpen, refreshUsers }) => {
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
