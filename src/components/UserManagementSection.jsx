@@ -158,6 +158,7 @@ const DeleteUserDialog = ({ open, setOpen, user, refreshUsers }) => {
 const UserManagementSection = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -221,7 +222,7 @@ const UserManagementSection = () => {
           <p className="text-white/70">Invita y administra a los usuarios del sistema.</p>
         </div>
         {canInviteUsers && (
-          <Button onClick={() => setIsInviteDialogOpen(true)} className="btn-primary"><UserPlus className="w-4 h-4 mr-2" />Invitar Usuario</Button>
+          <Button onClick={() => setIsCreateDialogOpen(true)} className="btn-primary"><UserPlus className="w-4 h-4 mr-2" />Crear Usuario</Button>
         )}
       </motion.div>
 
@@ -273,6 +274,7 @@ const UserManagementSection = () => {
           </CardContent>
         </Card>
       </motion.div>
+      <CreateUserDialog open={isCreateDialogOpen} setOpen={setIsCreateDialogOpen} refreshUsers={fetchUsers} />
       <InviteUserDialog open={isInviteDialogOpen} setOpen={setIsInviteDialogOpen} refreshUsers={fetchUsers} />
       {selectedUser && <DeleteUserDialog open={isDeleteDialogOpen} setOpen={setIsDeleteDialogOpen} user={selectedUser} refreshUsers={fetchUsers} />}
     </div>
