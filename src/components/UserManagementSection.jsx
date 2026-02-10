@@ -285,31 +285,15 @@ const UserManagementSection = () => {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('user-management', {
-        body: { action: 'listUsers' },
-      });
-
-      if (error) throw error;
-
-      const authUsers = data.users;
-
-      const userIds = authUsers.map(u => u.id);
+      // Consultar directamente la tabla profiles
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
-        .select('id, full_name')
-        .in('id', userIds);
+        .select('id, full_name, email, role')
+        .order('created_at', { ascending: false });
+
       if (profileError) throw profileError;
 
-      const profileMap = profiles.reduce((map, profile) => {
-        map[profile.id] = profile;
-        return map;
-      }, {});
-
-      const combinedUsers = authUsers.map(user => ({
-        ...user,
-        ...profileMap[user.id],
-      }));
-      setUsers(combinedUsers);
+      setUsers(profiles || []);
     } catch (error) {
       toast({
         variant: 'destructive',
