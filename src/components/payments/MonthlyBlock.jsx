@@ -339,7 +339,7 @@ const MonthlyBlock = ({
                         <TableRow key={payment.id} className="border-white/10 hover:bg-white/5">
                           <TableCell className="text-white">
                             {payment.students ? 
-                              payment.students.full_name || 'Sin nombre' : 
+                              payment.students.name || payment.students.full_name || 'Sin nombre' : 
                               'Sin estudiante'
                             }
                           </TableCell>
@@ -348,7 +348,7 @@ const MonthlyBlock = ({
                             ${payment.amount.toLocaleString()}
                           </TableCell>
                           <TableCell className="text-white/80">
-                            {payment.payment_date ? format(parseISO(payment.payment_date), 'dd/MM/yyyy') : '-'}
+                            {payment.due_date ? format(parseISO(payment.due_date), 'dd/MM/yyyy') : '-'}
                           </TableCell>
                           <TableCell>{getStatusBadge(payment.status)}</TableCell>
                           <TableCell>
