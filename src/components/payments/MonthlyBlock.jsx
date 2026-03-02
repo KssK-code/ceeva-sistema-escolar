@@ -59,7 +59,7 @@ const MonthlyBlock = ({
   // Filtrar pagos
   const filteredPayments = monthData.filter(payment => {
     const studentName = payment.students ? 
-      payment.students.full_name || `${payment.students.first_name || ''} ${payment.students.last_name || ''}` : '';
+      payment.students.name || payment.students.full_name || `${payment.students.first_name || ''} ${payment.students.last_name || ''}`.trim() || 'Sin nombre' : 'Sin nombre';
     const matchesSearch = studentName.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          payment.concept.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
