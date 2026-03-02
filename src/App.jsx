@@ -156,7 +156,7 @@ function App() {
       case 'students':
         return <StudentsSection students={students} courses={courses} schedules={schedules} refreshData={fetchProfileAndData} />;
       case 'payments':
-        return <PaymentsSection payments={payments} students={activeStudents} refreshData={fetchProfileAndData} />;
+        return <PaymentsSection payments={payments} students={activeStudents} refreshData={fetchProfileAndData} schoolSettings={schoolSettings} />;
       case 'accountStatement':
         return <AccountStatementSection students={students} schoolSettings={schoolSettings} />;
       case 'cashCut':
