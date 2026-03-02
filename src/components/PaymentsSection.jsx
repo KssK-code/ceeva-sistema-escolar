@@ -240,7 +240,7 @@ const PaymentForm = ({ open, setOpen, payment, students, refreshData }) => {
       // Test Edge Function with correct deployment
       console.log('🧪 Testing Edge Function (should work now)...');
       
-      const { data, error } = await supabase.functions.invoke('send-payment-receipt', {
+      const { data, error } = await supabase.functions.invoke('send-payment-receipt-v2', {
         body: { 
           student, 
           payment: {
@@ -466,7 +466,7 @@ const PaymentsSection = ({ payments, students, refreshData, schoolSettings }) =>
       // Test Edge Function with correct deployment
       console.log('🧪 Testing Edge Function (should work now)...');
       
-      const { data, error } = await supabase.functions.invoke('send-payment-receipt', {
+      const { data, error } = await supabase.functions.invoke('send-payment-receipt-v2', {
         body: { 
           student, 
           payment: {
