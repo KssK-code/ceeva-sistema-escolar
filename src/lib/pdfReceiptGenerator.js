@@ -72,8 +72,8 @@ export async function downloadPaymentReceiptPDFAlternative(student, payment) {
     // Resetear color a negro
     pdf.setTextColor(0, 0, 0);
     
-    // Intentar cargar logo automáticamente
-    await loadSystemLogo(pdf);
+    // Intentar cargar logo automáticamente (DESACTIVADO - causa problemas de carga)
+    // await loadSystemLogo(pdf);
     
     let yPosition = 60;
     
