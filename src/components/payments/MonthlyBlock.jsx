@@ -139,7 +139,7 @@ const MonthlyBlock = ({
       
       console.log('📤 Enviando datos a Edge Function:', requestData);
 
-      const response = await supabase.functions.invoke('send-payment-receipt', {
+      const response = await supabase.functions.invoke('send-payment-receipt-v2', {
         body: requestData
       });
 
