@@ -53,21 +53,32 @@ export async function downloadPaymentReceiptPDFAlternative(student, payment) {
     // Detectar nombre del sistema automáticamente
     const systemName = detectSystemName();
   
-    // Header limpio sin fondo de color
-    pdf.setFontSize(18);
+    // Header con información completa de la escuela
+    pdf.setFontSize(16);
     pdf.setFont('helvetica', 'bold');
-    pdf.text(systemName, 105, 20, { align: 'center' });
+    pdf.text('CEVM - Centro de Estudios Virtuales', 105, 15, { align: 'center' });
+    
+    // Dirección y contacto
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text('Av. Sierra de Tapalpa #5720', 105, 22, { align: 'center' });
+    pdf.text('Col. Pinar de la Calma', 105, 27, { align: 'center' });
+    pdf.text('Zapopan, Jalisco  Tel: 33 4334 7412', 105, 32, { align: 'center' });
+    
+    // Línea separadora
+    pdf.setLineWidth(0.5);
+    pdf.line(20, 36, 190, 36);
     
     // Subtítulo
     pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text('Comprobante de Pago', 105, 30, { align: 'center' });
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Comprobante de Pago', 105, 44, { align: 'center' });
     
     // Mensaje de reimpresión en verde
     pdf.setTextColor(0, 128, 0); // Verde
-    pdf.setFontSize(12);
+    pdf.setFontSize(11);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('*** REIMPRESIÓN ***', 105, 40, { align: 'center' });
+    pdf.text('*** REIMPRESIÓN ***', 105, 52, { align: 'center' });
     
     // Resetear color a negro
     pdf.setTextColor(0, 0, 0);
@@ -75,7 +86,7 @@ export async function downloadPaymentReceiptPDFAlternative(student, payment) {
     // Intentar cargar logo automáticamente (DESACTIVADO - causa problemas de carga)
     // await loadSystemLogo(pdf);
     
-    let yPosition = 60;
+    let yPosition = 62;
     
     // Información del estudiante
     pdf.setFontSize(14);
