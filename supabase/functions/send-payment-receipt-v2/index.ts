@@ -66,7 +66,7 @@ serve(async (req) => {
 
     // Enviar email usando Resend API
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
-    const fromEmail = Deno.env.get('FROM_EMAIL') || 'admin@send.cevm.com.mx';
+    const fromEmail = Deno.env.get('FROM_EMAIL') || 'admin@cevm.com.mx';
     
     console.log('🔑 Variables de entorno:');
     console.log('- RESEND_API_KEY existe:', !!resendApiKey);
