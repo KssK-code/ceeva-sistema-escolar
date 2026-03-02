@@ -281,17 +281,22 @@ const PaymentForm = ({ open, setOpen, payment, students, refreshData }) => {
       formData_completo: formData
     });
     
+    // Objeto simplificado - solo campos que existen en la BD
     const dataToSave = { 
       student_id: formData.student_id,
       amount: parseFloat(formData.amount),
       concept: formData.concept,
-      due_date: formData.due_date,
-      status: formData.status,
-      payment_date: formData.status === 'paid' ? (payment?.payment_date || getLocalDateString()) : null,
-      notes: formData.debt_amount ? `Adeudo restante: $${formData.debt_amount}` : null,
-      debt_amount: formData.debt_amount ? parseFloat(formData.debt_amount) : 0,
-      debt_description: formData.debt_description || ''
+      status: formData.status
     };
+    
+    // Solo agregar campos opcionales si no están vacíos
+    if (formData.due_date) {
+      dataToSave.due_date = formData.due_date;
+    }
+    
+    if (formData.status === 'paid') {
+      dataToSave.payment_date = payment?.payment_date || getLocalDateString();
+    }
     
     // DEBUG: Ver datos que se envían a Supabase
     console.log('📦 DEBUG dataToSave para Supabase:', dataToSave);
@@ -314,7 +319,13 @@ const PaymentForm = ({ open, setOpen, payment, students, refreshData }) => {
       });
 
       if (sendReceipt && savedPayment.status === 'paid') {
-        await sendPaymentReceipt(savedPayment);
+        // Crear objeto temporal con datos de adeudo SOLO para el comprobante
+        const paymentForReceipt = {
+          ...savedPayment,
+          debt_amount: formData.debt_amount ? parseFloat(formData.debt_amount) : 0,
+          debt_description: formData.debt_description || ''
+        };
+        await sendPaymentReceipt(paymentForReceipt);
       }
 
       refreshData();
