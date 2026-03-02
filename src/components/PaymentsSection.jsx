@@ -676,6 +676,7 @@ const PaymentsSection = ({ payments, students, refreshData, schoolSettings }) =>
             onDeletePayment={handleDelete}
             onStatusChange={handleStatusChange}
             canDeletePayments={canDeletePayments}
+            schoolSettings={schoolSettings}
           />
         )}
       </motion.div>

@@ -32,7 +32,7 @@ export async function downloadPaymentReceiptPDF(student, payment) {
 }
 
 // Función alternativa usando jsPDF (fallback) - VERSIÓN ROBUSTA UNIVERSAL
-export async function downloadPaymentReceiptPDFAlternative(student, payment) {
+export async function downloadPaymentReceiptPDFAlternative(student, payment, schoolSettings = null) {
   try {
     console.log('🔄 Iniciando descarga de PDF alternativo (jsPDF)...');
     
@@ -53,40 +53,65 @@ export async function downloadPaymentReceiptPDFAlternative(student, payment) {
     // Detectar nombre del sistema automáticamente
     const systemName = detectSystemName();
   
+    let startY = 15;
+    
+    // Intentar cargar logo desde schoolSettings (igual que en pdfGenerator.js)
+    if (schoolSettings?.logo_url) {
+      try {
+        console.log('📸 Cargando logo desde:', schoolSettings.logo_url);
+        const response = await fetch(schoolSettings.logo_url);
+        const blob = await response.blob();
+        const imgData = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+        const img = new Image();
+        img.src = imgData;
+        await new Promise(resolve => { img.onload = resolve });
+        const imgWidth = 30;
+        const imgHeight = (img.height * imgWidth) / img.width;
+        pdf.addImage(imgData, 'PNG', 15, startY, imgWidth, imgHeight);
+        console.log('✅ Logo cargado exitosamente');
+        startY = 22;
+      } catch (e) {
+        console.warn('⚠️ Error cargando logo, continuando sin logo:', e);
+        startY = 15;
+      }
+    }
+  
     // Header con información completa de la escuela
     pdf.setFontSize(16);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('CEVM - Centro de Estudios Virtuales', 105, 15, { align: 'center' });
+    pdf.text('CEVM - Centro de Estudios Virtuales', 105, startY, { align: 'center' });
     
     // Dirección y contacto
     pdf.setFontSize(9);
     pdf.setFont('helvetica', 'normal');
-    pdf.text('Av. Sierra de Tapalpa #5720', 105, 22, { align: 'center' });
-    pdf.text('Col. Pinar de la Calma', 105, 27, { align: 'center' });
-    pdf.text('Zapopan, Jalisco  Tel: 33 4334 7412', 105, 32, { align: 'center' });
+    pdf.text('Av. Sierra de Tapalpa #5720', 105, startY + 7, { align: 'center' });
+    pdf.text('Col. Pinar de la Calma', 105, startY + 12, { align: 'center' });
+    pdf.text('Zapopan, Jalisco  Tel: 33 4334 7412', 105, startY + 17, { align: 'center' });
     
     // Línea separadora
     pdf.setLineWidth(0.5);
-    pdf.line(20, 36, 190, 36);
+    pdf.line(20, startY + 21, 190, startY + 21);
     
     // Subtítulo
     pdf.setFontSize(14);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('Comprobante de Pago', 105, 44, { align: 'center' });
+    pdf.text('Comprobante de Pago', 105, startY + 29, { align: 'center' });
     
     // Mensaje de reimpresión en verde
     pdf.setTextColor(0, 128, 0); // Verde
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('*** REIMPRESIÓN ***', 105, 52, { align: 'center' });
+    pdf.text('*** REIMPRESIÓN ***', 105, startY + 37, { align: 'center' });
     
     // Resetear color a negro
     pdf.setTextColor(0, 0, 0);
     
-    // Intentar cargar logo automáticamente (DESACTIVADO - causa problemas de carga)
-    // await loadSystemLogo(pdf);
-    
-    let yPosition = 62;
+    let yPosition = startY + 47;
     
     // Información del estudiante
     pdf.setFontSize(14);

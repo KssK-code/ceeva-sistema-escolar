@@ -21,7 +21,8 @@ const MonthlyBlock = ({
   onEditPayment,
   onDeletePayment,
   onStatusChange,
-  canDeletePayments = false
+  canDeletePayments = false,
+  schoolSettings = null
 }) => {
   const [isExpanded, setIsExpanded] = useState(isCurrentMonth);
   const [searchTerm, setSearchTerm] = useState('');
@@ -199,7 +200,7 @@ const MonthlyBlock = ({
       // Intentar con jsPDF primero (más confiable)
       try {
         console.log('📄 Intentando generar PDF con jsPDF...');
-        await downloadPaymentReceiptPDFAlternative(student, payment);
+        await downloadPaymentReceiptPDFAlternative(student, payment, schoolSettings);
         
         toast({
           title: "PDF descargado",

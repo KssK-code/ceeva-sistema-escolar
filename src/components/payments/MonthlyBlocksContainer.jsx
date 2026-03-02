@@ -9,7 +9,8 @@ const MonthlyBlocksContainer = ({
   onEditPayment,
   onDeletePayment,
   onStatusChange,
-  canDeletePayments = false
+  canDeletePayments = false,
+  schoolSettings = null
 }) => {
   // Agrupar pagos por mes y ordenar - Solución automática
   const paymentsByMonth = useMemo(() => {
@@ -114,6 +115,7 @@ const MonthlyBlocksContainer = ({
             onDeletePayment={onDeletePayment}
             onStatusChange={onStatusChange}
             canDeletePayments={canDeletePayments}
+            schoolSettings={schoolSettings}
           />
         </motion.div>
       ))}
