@@ -295,7 +295,7 @@ const PaymentForm = ({ open, setOpen, payment, students, refreshData }) => {
     }
     
     if (formData.status === 'paid') {
-      dataToSave.payment_date = payment?.payment_date || getLocalDateString();
+      dataToSave.paid_date = payment?.paid_date || getLocalDateString();
     }
     
     // DEBUG: Ver datos que se envían a Supabase
