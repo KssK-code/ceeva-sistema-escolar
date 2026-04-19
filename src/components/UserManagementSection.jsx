@@ -26,11 +26,32 @@ const CreateUserDialog = ({ open, setOpen, refreshUsers }) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.functions.invoke('user-management', {
-        body: { action: 'createUser', payload: { email, password, fullName, role } },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/admin/users`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY,
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY}`,
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            email_confirm: true,
+          }),
+        }
+      );
 
-      if (error) throw error;
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.msg || data.message || 'Error al crear usuario');
+
+      // Insertar perfil con nombre y rol
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({ id: data.id, email, full_name: fullName, role });
+
+      if (profileError) console.warn('Profile insert error:', profileError);
 
       toast({
         title: 'Usuario creado exitosamente',
