@@ -44,12 +44,22 @@ const CreateUserDialog = ({ open, setOpen, refreshUsers }) => {
       );
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.msg || data.message || 'Error al crear usuario');
+      if (!response.ok) {
+        const technical = String(data.msg || data.message || data.error_description || '');
+        const technicalLower = technical.toLowerCase();
+        const duplicate =
+          response.status === 422 ||
+          technicalLower.includes('already registered') ||
+          technicalLower.includes('already been registered');
+        throw new Error(
+          duplicate ? 'Este email ya está registrado' : technical || 'Error al crear usuario'
+        );
+      }
 
       // Insertar perfil con nombre y rol
       const { error: profileError } = await supabase
         .from('profiles')
-        .insert({ id: data.id, email, full_name: fullName, role });
+        .upsert({ id: data.id, email, full_name: fullName, role }, { onConflict: 'id' });
 
       if (profileError) console.warn('Profile insert error:', profileError);
 
