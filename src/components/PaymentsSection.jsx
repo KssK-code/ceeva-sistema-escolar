@@ -9,10 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/customSupabaseClient';
-import { Plus, Edit, Trash2, Send, Loader2, Search, Filter, Calendar, DollarSign, BarChart3, List } from 'lucide-react';
+import { Plus, Edit, Trash2, Loader2, Search, Filter, Calendar, DollarSign, BarChart3, List } from 'lucide-react';
 import { format, parseISO, isBefore } from 'date-fns';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 import MonthlyBlocksContainer from './payments/MonthlyBlocksContainer';
@@ -146,7 +145,6 @@ const StudentSearchField = ({ students, selectedStudentId, onStudentSelect }) =>
 const PaymentForm = ({ open, setOpen, payment, students, refreshData }) => {
   const [formData, setFormData] = useState({ student_id: '', amount: '', concept: '', due_date: '', status: 'pending', debt_amount: '', debt_description: '' });
   const [paymentConcepts, setPaymentConcepts] = useState([]);
-  const [sendReceipt, setSendReceipt] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -198,77 +196,6 @@ const PaymentForm = ({ open, setOpen, payment, students, refreshData }) => {
     }
   }, [payment, open]);
 
-  const sendPaymentReceipt = async (paymentData) => {
-    const student = students.find(s => s.id === paymentData.student_id);
-    if (!student || !student.email) {
-      toast({ variant: "destructive", title: "No se pudo enviar el recibo", description: "El estudiante no tiene un email registrado." });
-      return;
-    }
-    
-    toast({ title: "Enviando recibo...", description: `Preparando para enviar a ${student.email}.` });
-
-    try {
-      const receiptHtml = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; color: white; border-radius: 10px 10px 0 0;">
-            <h1 style="margin: 0; font-size: 28px;">${import.meta.env.VITE_SCHOOL_NAME || 'Sistema Escolar'}</h1>
-            <p style="margin: 10px 0 0 0; opacity: 0.9;">Comprobante de Pago</p>
-          </div>
-          <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <h2 style="color: #333; margin-top: 0;">Estimado/a ${student.full_name || student.name},</h2>
-            <p style="color: #666; line-height: 1.6;">Hemos recibido su pago correctamente. A continuación los detalles:</p>
-            
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr><td style="padding: 8px 0; font-weight: bold; color: #333;">Concepto:</td><td style="padding: 8px 0; color: #666;">${paymentData.concept}</td></tr>
-                <tr><td style="padding: 8px 0; font-weight: bold; color: #333;">Monto:</td><td style="padding: 8px 0; color: #666;">$${paymentData.amount}</td></tr>
-                <tr><td style="padding: 8px 0; font-weight: bold; color: #333;">Fecha de Pago:</td><td style="padding: 8px 0; color: #666;">${paymentData.payment_date || new Date().toLocaleDateString('es-MX')}</td></tr>
-                <tr><td style="padding: 8px 0; font-weight: bold; color: #333;">Estado:</td><td style="padding: 8px 0; color: #28a745; font-weight: bold;">PAGADO</td></tr>
-              </table>
-            </div>
-            
-            <p style="color: #666; line-height: 1.6;">Gracias por su pago puntual. Si tiene alguna pregunta, no dude en contactarnos.</p>
-            
-            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-              <p style="color: #999; font-size: 14px; margin: 0;">${import.meta.env.VITE_SCHOOL_NAME || 'Sistema Escolar'}</p>
-              <p style="color: #999; font-size: 14px; margin: 5px 0 0 0;">Comprobante generado automáticamente</p>
-            </div>
-          </div>
-        </div>
-      `;
-
-      // Test Edge Function with correct deployment
-      console.log('🧪 Testing Edge Function (should work now)...');
-      
-      const { data, error } = await supabase.functions.invoke('send-payment-receipt-v2', {
-        body: { 
-          student, 
-          payment: {
-            ...paymentData,
-            debt_amount: paymentData.debt_amount || 0,
-            debt_description: paymentData.debt_description || 'Adeudo pendiente'
-          }
-        },
-      });
-      
-      if (error) {
-        console.error('❌ Edge Function error:', error);
-        throw new Error(`Error al enviar email: ${error.message}`);
-      }
-      
-      if (data?.error) {
-        console.error('❌ Email sending error:', data.error);
-        throw new Error(`Email error: ${data.error}`);
-      }
-      
-      console.log('✅ Edge Function response:', data);
-      
-      toast({ title: "Recibo enviado", description: `Se ha enviado un comprobante de pago a ${student.email}.` });
-    } catch (error) {
-      toast({ variant: "destructive", title: "Error al enviar el recibo", description: `Detalle: ${error.message}` });
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -317,16 +244,6 @@ const PaymentForm = ({ open, setOpen, payment, students, refreshData }) => {
         title: `Pago ${payment ? 'actualizado' : 'registrado'}`,
         description: `El pago se ha ${payment ? 'actualizado' : 'guardado'} correctamente.`,
       });
-
-      if (sendReceipt && savedPayment.status === 'paid') {
-        // Crear objeto temporal con datos de adeudo SOLO para el comprobante
-        const paymentForReceipt = {
-          ...savedPayment,
-          debt_amount: formData.debt_amount ? parseFloat(formData.debt_amount) : 0,
-          debt_description: formData.debt_description || ''
-        };
-        await sendPaymentReceipt(paymentForReceipt);
-      }
 
       refreshData();
       setOpen(false);
@@ -386,15 +303,6 @@ const PaymentForm = ({ open, setOpen, payment, students, refreshData }) => {
               </SelectContent>
             </Select>
           </div>
-          {formData.status === 'paid' && (
-            <div className="flex items-center justify-between p-3 rounded-lg bg-white/10">
-              <Label htmlFor="send-receipt" className="flex items-center gap-2 text-white/90">
-                <Send className="w-4 h-4" />
-                Enviar comprobante por email
-              </Label>
-              <Switch id="send-receipt" checked={sendReceipt} onCheckedChange={setSendReceipt} />
-            </div>
-          )}
           <DialogFooter>
             <DialogClose asChild><Button type="button" variant="secondary" className="btn-secondary">Cancelar</Button></DialogClose>
             <Button type="submit" className="w-full btn-primary" disabled={isSubmitting}>
@@ -423,94 +331,6 @@ const PaymentsSection = ({ payments, students, refreshData, schoolSettings }) =>
     const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
-  
-  const sendPaymentReceipt = async (paymentData) => {
-    const student = students.find(s => s.id === paymentData.student_id);
-    if (!student || !student.email) {
-      toast({ variant: "destructive", title: "No se pudo enviar el recibo", description: "El estudiante no tiene un email registrado." });
-      return;
-    }
-
-    toast({ title: "Enviando recibo...", description: `Preparando para enviar a ${student.email}.` });
-
-    try {
-      const receiptHtml = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; color: white; border-radius: 10px 10px 0 0;">
-            <h1 style="margin: 0; font-size: 28px;">${import.meta.env.VITE_SCHOOL_NAME || 'Sistema Escolar'}</h1>
-            <p style="margin: 10px 0 0 0; opacity: 0.9;">Comprobante de Pago</p>
-          </div>
-          <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <h2 style="color: #333; margin-top: 0;">Estimado/a ${student.full_name || student.name},</h2>
-            <p style="color: #666; line-height: 1.6;">Hemos recibido su pago correctamente. A continuación los detalles:</p>
-            
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr><td style="padding: 8px 0; font-weight: bold; color: #333;">Concepto:</td><td style="padding: 8px 0; color: #666;">${paymentData.concept}</td></tr>
-                <tr><td style="padding: 8px 0; font-weight: bold; color: #333;">Monto:</td><td style="padding: 8px 0; color: #666;">$${paymentData.amount}</td></tr>
-                <tr><td style="padding: 8px 0; font-weight: bold; color: #333;">Fecha de Pago:</td><td style="padding: 8px 0; color: #666;">${paymentData.payment_date || new Date().toLocaleDateString('es-MX')}</td></tr>
-                <tr><td style="padding: 8px 0; font-weight: bold; color: #333;">Estado:</td><td style="padding: 8px 0; color: #28a745; font-weight: bold;">PAGADO</td></tr>
-              </table>
-            </div>
-            
-            <p style="color: #666; line-height: 1.6;">Gracias por su pago puntual. Si tiene alguna pregunta, no dude en contactarnos.</p>
-            
-            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-              <p style="color: #999; font-size: 14px; margin: 0;">${import.meta.env.VITE_SCHOOL_NAME || 'Sistema Escolar'}</p>
-              <p style="color: #999; font-size: 14px; margin: 5px 0 0 0;">Comprobante generado automáticamente</p>
-            </div>
-          </div>
-        </div>
-      `;
-
-      // Test Edge Function with correct deployment
-      console.log('🧪 Testing Edge Function (should work now)...');
-      
-      const { data, error } = await supabase.functions.invoke('send-payment-receipt-v2', {
-        body: { 
-          student, 
-          payment: {
-            ...paymentData,
-            debt_amount: paymentData.debt_amount || 0,
-            debt_description: paymentData.debt_description || 'Adeudo pendiente'
-          }
-        },
-      });
-      
-      if (error) {
-        console.error('❌ Edge Function error:', error);
-        throw new Error(`Error al enviar email: ${error.message}`);
-      }
-      
-      if (data?.error) {
-        console.error('❌ Email sending error:', data.error);
-        throw new Error(`Email error: ${data.error}`);
-      }
-      
-      console.log('✅ Edge Function response:', data);
-
-      toast({ title: "Recibo enviado", description: `Se ha enviado un comprobante de pago a ${student.email}.` });
-    } catch (error) {
-      toast({ variant: "destructive", title: "Error al enviar el recibo", description: `Detalle: ${error.message}` });
-    }
-  };
-
-  const updatePaymentStatus = async (paymentId, newStatus) => {
-    try {
-      const { data: updatedPayment, error } = await supabase.from('payments').update({ status: newStatus, payment_date: newStatus === 'paid' ? getLocalDateString() : null }).eq('id', paymentId).select().single();
-      if (error) throw error;
-      
-      toast({ title: "Estado actualizado", description: `El pago ha sido marcado como ${newStatus}.` });
-      
-      if (newStatus === 'paid') {
-        await sendPaymentReceipt(updatedPayment);
-      }
-
-      refreshData();
-    } catch (error) {
-      toast({ variant: "destructive", title: "Error al actualizar estado", description: error.message });
-    }
-  };
 
   const handleEdit = (payment) => {
     setEditingPayment(payment);
@@ -542,15 +362,7 @@ const PaymentsSection = ({ payments, students, refreshData, schoolSettings }) =>
       if (error) throw error;
       
       toast({ title: "Estado actualizado", description: `Pago marcado como ${newStatus}` });
-      
-      // Si se marca como pagado, enviar comprobante automáticamente
-      if (newStatus === 'paid') {
-        const updatedPayment = payments.find(p => p.id === paymentId);
-        if (updatedPayment) {
-          await sendPaymentReceipt({ ...updatedPayment, status: 'paid', payment_date: updateData.payment_date });
-        }
-      }
-      
+
       refreshData();
     } catch (error) {
       toast({ variant: "destructive", title: "Error al actualizar estado", description: error.message });

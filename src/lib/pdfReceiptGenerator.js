@@ -79,6 +79,8 @@ export async function downloadPaymentReceiptPDFAlternative(student, payment, sch
         console.warn('⚠️ Error cargando logo, continuando sin logo:', e);
         startY = 15;
       }
+    } else {
+      await loadSystemLogo(pdf);
     }
   
     // Header con información completa de la escuela
@@ -105,16 +107,9 @@ export async function downloadPaymentReceiptPDFAlternative(student, payment, sch
     pdf.setFont('helvetica', 'bold');
     pdf.text('Comprobante de Pago', 105, startY + 21, { align: 'center' });
 
-    // Mensaje de reimpresión en verde
-    pdf.setTextColor(0, 128, 0);
-    pdf.setFontSize(11);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('*** REIMPRESIÓN ***', 105, startY + 29, { align: 'center' });
-    
-    // Resetear color a negro
     pdf.setTextColor(0, 0, 0);
-    
-    let yPosition = startY + 47;
+
+    let yPosition = startY + 32;
     
     // Información del estudiante
     pdf.setFontSize(14);
@@ -168,17 +163,7 @@ export async function downloadPaymentReceiptPDFAlternative(student, payment, sch
       pdf.text(`Saldo Pendiente: $${payment.debt_info.remaining_debt?.toLocaleString('es-MX', { minimumFractionDigits: 2 }) || '0.00'}`, 20, yPosition);
       yPosition += 15;
     }
-  
-    // Mensaje de reimpresión
-    pdf.setTextColor(0, 128, 0); // Verde
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Este es un comprobante de reimpresión generado automáticamente.', 105, yPosition, { align: 'center' });
-    pdf.text('Para cualquier aclaración, contacte a la institución.', 105, yPosition + 8, { align: 'center' });
-    
-    // Resetear color
-    pdf.setTextColor(0, 0, 0);
-    
+
     // Footer
     pdf.setFontSize(8);
     pdf.setFont('helvetica', 'italic');
@@ -254,6 +239,14 @@ function detectSystemName() {
 }
 
 // Función para cargar logo del sistema automáticamente
+function publicAssetUrl(path) {
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return `${window.location.origin}${normalized}`;
+  }
+  return normalized;
+}
+
 async function loadSystemLogo(pdf) {
   // Lista de posibles logos en orden de prioridad
   const possibleLogos = [
@@ -267,7 +260,7 @@ async function loadSystemLogo(pdf) {
   
   for (const logoPath of possibleLogos) {
     try {
-      const response = await fetch(logoPath);
+      const response = await fetch(publicAssetUrl(logoPath));
       if (!response.ok) continue;
       
       const blob = await response.blob();
@@ -310,15 +303,18 @@ function createReceiptHTML(student, payment) {
   const paymentAmount = getPaymentAmount(payment);
   const paymentDate = getPaymentDate(payment);
   const systemName = detectSystemName();
-  
+  const logoSrc =
+    typeof window !== 'undefined' && window.location?.href
+      ? new URL('/logo-ceeva.png', window.location.href).href
+      : '/logo-ceeva.png';
+
   return `
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
       <!-- Header limpio sin fondo de color -->
       <div style="text-align: center; margin-bottom: 30px; padding: 20px; border-bottom: 2px solid #333;">
-        <img src="/logo-ceeva.png" alt="Logo ${systemName}" style="max-width: 150px; height: auto; margin-bottom: 10px;" onerror="this.style.display='none'">
+        <img src="${logoSrc}" alt="Logo ${systemName}" style="max-width: 150px; height: auto; margin-bottom: 10px;" crossorigin="anonymous" onerror="this.style.display='none'">
         <h1 style="margin: 10px 0; color: #333; font-size: 24px;">${systemName}</h1>
         <h2 style="margin: 5px 0; color: #666; font-size: 18px;">Comprobante de Pago</h2>
-        <p style="color: #28a745; font-weight: bold; font-size: 16px; margin: 10px 0;">*** REIMPRESIÓN ***</p>
       </div>
 
       <!-- Información del estudiante -->
@@ -346,12 +342,6 @@ function createReceiptHTML(student, payment) {
         <p><strong>Saldo Pendiente:</strong> $${payment.debt_info.remaining_debt?.toLocaleString('es-MX', { minimumFractionDigits: 2 }) || '0.00'}</p>
       </div>
       ` : ''}
-
-      <!-- Mensaje de reimpresión -->
-      <div style="text-align: center; margin: 30px 0; padding: 15px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px;">
-        <p style="color: #155724; font-weight: bold; margin: 0;">Este es un comprobante de reimpresión generado automáticamente.</p>
-        <p style="color: #155724; margin: 5px 0 0 0;">Para cualquier aclaración, contacte a la institución.</p>
-      </div>
 
       <!-- Footer -->
       <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd;">
