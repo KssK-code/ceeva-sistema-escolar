@@ -26,32 +26,12 @@ const CreateUserDialog = ({ open, setOpen, refreshUsers }) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      // Crear usuario con signUp (no requiere service_role)
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { full_name: fullName },
-          emailRedirectTo: window.location.origin
-        }
+      const { error } = await supabase.functions.invoke('user-management', {
+        body: { action: 'createUser', payload: { email, password, fullName, role } },
       });
 
-      if (authError) throw authError;
+      if (error) throw error;
 
-      // Esperar un momento para que se cree el perfil
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Actualizar el rol en la tabla profiles
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ role, full_name: fullName })
-        .eq('id', authData.user.id);
-
-      if (profileError) {
-        console.warn('Error actualizando perfil:', profileError);
-        // No lanzar error si solo falla la actualización del perfil
-      }
-      
       toast({
         title: 'Usuario creado exitosamente',
         description: `${fullName} puede iniciar sesión ahora con ${email}.`,
@@ -85,20 +65,20 @@ const CreateUserDialog = ({ open, setOpen, refreshUsers }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
            <div>
             <Label htmlFor="fullName" className="text-white/80">Nombre Completo</Label>
-            <Input id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="input-field" required />
+            <Input id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="bg-slate-700/80 border-slate-500 text-white placeholder-slate-400 focus:border-blue-400" required />
           </div>
           <div>
             <Label htmlFor="email" className="text-white/80">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-field" required />
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-slate-700/80 border-slate-500 text-white placeholder-slate-400 focus:border-blue-400" required />
           </div>
           <div>
             <Label htmlFor="password" className="text-white/80">Contraseña</Label>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input-field" required minLength={6} />
+            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-slate-700/80 border-slate-500 text-white placeholder-slate-400 focus:border-blue-400" required minLength={6} />
           </div>
           <div>
             <Label htmlFor="role" className="text-white/80">Rol del Usuario</Label>
             <Select value={role} onValueChange={setRole}>
-              <SelectTrigger className="input-field">
+              <SelectTrigger className="bg-slate-700/80 border-slate-500 text-white">
                 <SelectValue placeholder="Seleccionar rol" />
               </SelectTrigger>
               <SelectContent>
