@@ -26,57 +26,26 @@ const CreateUserDialog = ({ open, setOpen, refreshUsers }) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/admin/users`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY,
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY}`,
-          },
-          body: JSON.stringify({
-            email,
-            password,
-            email_confirm: true,
-          }),
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName },
+          emailRedirectTo: window.location.origin
         }
-      );
-
-      const data = await response.json();
-      if (!response.ok) {
-        const technical = String(data.msg || data.message || data.error_description || '');
-        const technicalLower = technical.toLowerCase();
-        const duplicate =
-          response.status === 422 ||
-          technicalLower.includes('already registered') ||
-          technicalLower.includes('already been registered');
-        throw new Error(
-          duplicate ? 'Este email ya está registrado' : technical || 'Error al crear usuario'
-        );
-      }
-
-      const userId = data.user?.id ?? data.id;
-
-      const { data: updatedRows, error: profileError } = await supabase
+      });
+      if (authError) throw authError;
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error: profileError } = await supabase
         .from('profiles')
-        .update({ full_name: fullName, role })
-        .eq('id', userId)
-        .select('id');
-
-      if (profileError) console.warn('Profile update error:', profileError);
-
-      if (!profileError && (!updatedRows || updatedRows.length === 0)) {
-        await new Promise((r) => setTimeout(r, 1000));
-        const { error: upsertError } = await supabase
-          .from('profiles')
-          .upsert({ id: userId, email, full_name: fullName, role }, { onConflict: 'id' });
-        if (upsertError) console.warn('Profile upsert error:', upsertError);
+        .update({ role, full_name: fullName })
+        .eq('id', authData.user.id);
+      if (profileError) {
+        console.warn('Error actualizando perfil:', profileError);
       }
-
       toast({
         title: 'Usuario creado exitosamente',
-        description: `${fullName} puede iniciar sesión ahora con ${email}.`,
+        description: `${fullName} puede iniciar sesión con ${email}.`,
       });
       refreshUsers();
       setOpen(false);
