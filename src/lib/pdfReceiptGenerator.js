@@ -94,24 +94,22 @@ export async function downloadPaymentReceiptPDFAlternative(student, payment, sch
     // Dirección y contacto
     pdf.setFontSize(9);
     pdf.setFont('helvetica', 'normal');
-    pdf.text('Av. Sierra de Tapalpa #5720', 105, startY + 7, { align: 'center' });
-    pdf.text('Col. Pinar de la Calma', 105, startY + 12, { align: 'center' });
-    pdf.text('Zapopan, Jalisco  Tel: 33 4334 7412', 105, startY + 17, { align: 'center' });
+    pdf.text('Zapopan, Jalisco', 105, startY + 7, { align: 'center' });
     
     // Línea separadora
     pdf.setLineWidth(0.5);
-    pdf.line(20, startY + 21, 190, startY + 21);
-    
+    pdf.line(20, startY + 13, 190, startY + 13);
+
     // Subtítulo
     pdf.setFontSize(14);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('Comprobante de Pago', 105, startY + 29, { align: 'center' });
-    
+    pdf.text('Comprobante de Pago', 105, startY + 21, { align: 'center' });
+
     // Mensaje de reimpresión en verde
-    pdf.setTextColor(0, 128, 0); // Verde
+    pdf.setTextColor(0, 128, 0);
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('*** REIMPRESIÓN ***', 105, startY + 37, { align: 'center' });
+    pdf.text('*** REIMPRESIÓN ***', 105, startY + 29, { align: 'center' });
     
     // Resetear color a negro
     pdf.setTextColor(0, 0, 0);
@@ -251,17 +249,8 @@ function getPaymentDate(payment) {
   }
 }
 
-// Función para detectar nombre del sistema automáticamente
 function detectSystemName() {
-  // Detectar por URL o configuración
-  const hostname = window.location.hostname;
-  
-  if (hostname.includes('polanco')) return 'Polanco';
-  if (hostname.includes('obregon')) return 'Avanza Ciudad Obregón';
-  if (hostname.includes('avanza')) return 'Avanza Virtual';
-  
-  // Fallback genérico
-  return 'Sistema Educativo';
+  return import.meta.env.VITE_SCHOOL_NAME || 'Sistema Educativo';
 }
 
 // Función para cargar logo del sistema automáticamente
@@ -326,7 +315,7 @@ function createReceiptHTML(student, payment) {
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
       <!-- Header limpio sin fondo de color -->
       <div style="text-align: center; margin-bottom: 30px; padding: 20px; border-bottom: 2px solid #333;">
-        <img src="/logo.png" alt="Logo ${systemName}" style="max-width: 150px; height: auto; margin-bottom: 10px;" onerror="this.style.display='none'">
+        <img src="/logo-ceeva.png" alt="Logo ${systemName}" style="max-width: 150px; height: auto; margin-bottom: 10px;" onerror="this.style.display='none'">
         <h1 style="margin: 10px 0; color: #333; font-size: 24px;">${systemName}</h1>
         <h2 style="margin: 5px 0; color: #666; font-size: 18px;">Comprobante de Pago</h2>
         <p style="color: #28a745; font-weight: bold; font-size: 16px; margin: 10px 0;">*** REIMPRESIÓN ***</p>

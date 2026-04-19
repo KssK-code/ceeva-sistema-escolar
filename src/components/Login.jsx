@@ -52,9 +52,9 @@ const Login = () => {
                 {/* Logo de la escuela */}
                 <div className="flex justify-center mb-8">
                   <div className="w-48 h-48 rounded-full overflow-hidden shadow-2xl bg-gray-50 flex items-center justify-center">
-                    <img 
-                      src="https://splrzhtwaqpdtdiaodmo.supabase.co/storage/v1/object/public/schoolassets/logos/logo_t770697374375.jpeg" 
-                      alt={schoolName} 
+                    <img
+                      src="/logo-ceeva.png"
+                      alt={schoolName}
                       className="w-44 h-44 object-contain"
                       onError={(e) => {
                         e.target.style.display = 'none';

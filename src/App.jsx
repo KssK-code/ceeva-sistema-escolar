@@ -195,7 +195,7 @@ function App() {
   return (
     <>
       <Helmet>
-        <title>EduManager - Sistema de Gestión Escolar</title>
+        <title>{import.meta.env.VITE_SCHOOL_NAME} - Sistema de Gestión Escolar</title>
         <meta name="description" content="Sistema completo de gestión escolar para administrar estudiantes, pagos, cursos y más. Interfaz moderna y fácil de usar." />
       </Helmet>
       
