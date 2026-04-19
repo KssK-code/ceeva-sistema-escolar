@@ -56,12 +56,23 @@ const CreateUserDialog = ({ open, setOpen, refreshUsers }) => {
         );
       }
 
-      // Insertar perfil con nombre y rol
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({ id: data.id, email, full_name: fullName, role }, { onConflict: 'id' });
+      const userId = data.user?.id ?? data.id;
 
-      if (profileError) console.warn('Profile insert error:', profileError);
+      const { data: updatedRows, error: profileError } = await supabase
+        .from('profiles')
+        .update({ full_name: fullName, role })
+        .eq('id', userId)
+        .select('id');
+
+      if (profileError) console.warn('Profile update error:', profileError);
+
+      if (!profileError && (!updatedRows || updatedRows.length === 0)) {
+        await new Promise((r) => setTimeout(r, 1000));
+        const { error: upsertError } = await supabase
+          .from('profiles')
+          .upsert({ id: userId, email, full_name: fullName, role }, { onConflict: 'id' });
+        if (upsertError) console.warn('Profile upsert error:', upsertError);
+      }
 
       toast({
         title: 'Usuario creado exitosamente',
