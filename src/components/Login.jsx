@@ -9,6 +9,8 @@ import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
+  const schoolName = import.meta.env.VITE_SCHOOL_NAME;
+  const demoEmail = `usuario@${String(import.meta.env.VITE_SCHOOL_CODE ?? '').toLowerCase()}.edu`;
   const { signIn } = useAuth();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
@@ -47,12 +49,12 @@ const Login = () => {
           >
             <form onSubmit={handleLogin}>
               <CardHeader className="text-center pb-8">
-                {/* Logo de CEVM */}
+                {/* Logo de la escuela */}
                 <div className="flex justify-center mb-8">
                   <div className="w-48 h-48 rounded-full overflow-hidden shadow-2xl bg-gray-50 flex items-center justify-center">
                     <img 
                       src="https://splrzhtwaqpdtdiaodmo.supabase.co/storage/v1/object/public/schoolassets/logos/logo_t770697374375.jpeg" 
-                      alt="CEVM" 
+                      alt={schoolName} 
                       className="w-44 h-44 object-contain"
                       onError={(e) => {
                         e.target.style.display = 'none';
@@ -63,8 +65,8 @@ const Login = () => {
                   </div>
                 </div>
                 
-                <CardTitle className="text-4xl font-bold mb-2" style={{color: '#4A90E2'}}>
-                  CEVM System
+                <CardTitle className="text-4xl font-bold mb-2" style={{color: '#1B2F6E'}}>
+                  {schoolName}
                 </CardTitle>
                 <CardDescription className="text-gray-600 text-base">
                   Sistema de Gestión Educativa
@@ -80,7 +82,7 @@ const Login = () => {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="usuario@cevm.edu"
+                    placeholder={demoEmail}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required

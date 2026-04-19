@@ -50,7 +50,7 @@ const Dashboard = ({ students, payments, schoolSettings }) => {
         className="mb-8 flex items-center justify-between"
       >
         <div>
-          <h1 className="text-3xl font-bold gradient-text mb-2">CEVM - Dashboard</h1>
+          <h1 className="text-3xl font-bold gradient-text mb-2">{import.meta.env.VITE_SCHOOL_NAME} - Dashboard</h1>
           <p className="text-white/70">Sistema de Gestión Educativa - Zapopan, Jalisco</p>
         </div>
         {schoolSettings?.logo_url && (

@@ -84,7 +84,12 @@ export async function downloadPaymentReceiptPDFAlternative(student, payment, sch
     // Header con información completa de la escuela
     pdf.setFontSize(16);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('CEVM - Centro de Estudios Virtuales', 105, startY, { align: 'center' });
+    pdf.text(
+      `${import.meta.env.VITE_SCHOOL_NAME} - ${import.meta.env.VITE_BRANCH_NAME}`,
+      105,
+      startY,
+      { align: 'center' }
+    );
     
     // Dirección y contacto
     pdf.setFontSize(9);
@@ -263,6 +268,7 @@ function detectSystemName() {
 async function loadSystemLogo(pdf) {
   // Lista de posibles logos en orden de prioridad
   const possibleLogos = [
+    '/logo-ceeva.png',
     '/logo-polanco.png',
     '/logo-avanza.png', 
     '/avanza-logo.png.png',

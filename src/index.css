@@ -12,9 +12,9 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
     
-    --primary-hue: 262;
-    --primary-saturation: 83%;
-    --primary-lightness: 58%;
+    --primary-hue: 225;
+    --primary-saturation: 61%;
+    --primary-lightness: 27%;
 
     --primary: var(--primary-hue) var(--primary-saturation) var(--primary-lightness);
     --primary-foreground: 210 40% 98%;
@@ -23,8 +23,8 @@
     --secondary-foreground: 222.2 84% 4.9%;
     --muted: 210 40% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
+    --accent: 44 53% 54%;
+    --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
@@ -35,9 +35,9 @@
     --bg-from: var(--bg-from-default);
     --bg-via: var(--bg-via-default);
     --bg-to: var(--bg-to-default);
-    --bg-from-default: #1e1b4b;
-    --bg-via-default: #4c1d95;
-    --bg-to-default: #0f172a;
+    --bg-from-default: #0f1a42;
+    --bg-via-default: #1B2F6E;
+    --bg-to-default: #0a1028;
   }
 }
 
@@ -53,7 +53,7 @@ body {
 }
 
 .gradient-text {
-  @apply bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))] bg-clip-text text-transparent;
 }
 
 .card-hover {

@@ -63,7 +63,7 @@ const Sidebar = ({ activeSection, setActiveSection, schoolSettings, profile }) =
           </div>
         )}
         <div>
-          <p className="font-semibold text-lg">{schoolSettings?.school_name || 'CEVM System'}</p>
+          <p className="font-semibold text-lg">{schoolSettings?.school_name || import.meta.env.VITE_SCHOOL_NAME}</p>
           <p className="text-xs text-slate-400">Zapopan, Jalisco</p>
         </div>
       </div>

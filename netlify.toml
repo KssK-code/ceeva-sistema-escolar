@@ -15,6 +15,6 @@
 [context.production.environment]
   VITE_SUPABASE_URL = "https://splrzhtwaqpdtdiaodmo.supabase.co"
   VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwbHJ6aHR3YXFwZHRkaWFvZG1vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2ODYwNjksImV4cCI6MjA4NjI2MjA2OX0.f703N6MDi9WZfftqzxbLl_rJCmBcl8b2I8GUwc4KldU"
-  VITE_SCHOOL_NAME = "CEVM"
-  VITE_SCHOOL_CODE = "CEVM_2026"
-  VITE_BRANCH_NAME = "Zapopan, Jalisco"
+  VITE_SCHOOL_NAME = "CEEVA"
+  VITE_SCHOOL_CODE = "CEEVA"
+  VITE_BRANCH_NAME = "Centro de Estudios Virtuales"
