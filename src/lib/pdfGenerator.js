@@ -2,39 +2,54 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { format, parseISO } from 'date-fns';
 import { utcToZonedTime } from 'date-fns-tz';
+import { resolveSchoolDisplayName, getPublicCeevaLogoUrl } from './utils';
 
 const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
 const drawHeader = async (doc, schoolSettings, title) => {
   let startY = 15;
-  if (schoolSettings?.logo_url) {
+  const resolvedName = resolveSchoolDisplayName(schoolSettings);
+
+  const tryAddLogo = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('logo fetch failed');
+    const blob = await response.blob();
+    const imgData = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+    const img = new Image();
+    img.src = imgData;
+    await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; });
+    const imgWidth = 30;
+    const imgHeight = (img.height * imgWidth) / img.width;
+    const fmt = String(imgData).toLowerCase().includes('jpeg') ? 'JPEG' : 'PNG';
+    doc.addImage(imgData, fmt, 15, startY, imgWidth, imgHeight);
+    startY = 22;
+  };
+
+  try {
+    if (schoolSettings?.logo_url) {
+      await tryAddLogo(schoolSettings.logo_url);
+    } else {
+      throw new Error('no remote logo');
+    }
+  } catch (e) {
     try {
-      const response = await fetch(schoolSettings.logo_url);
-      const blob = await response.blob();
-      const imgData = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-      const img = new Image();
-      img.src = imgData;
-      await new Promise(resolve => { img.onload = resolve });
-      const imgWidth = 30;
-      const imgHeight = (img.height * imgWidth) / img.width;
-      doc.addImage(imgData, 'PNG', 15, startY, imgWidth, imgHeight);
-      startY = 22;
-    } catch (e) {
-      console.error("Error loading logo for PDF, skipping.", e);
-      startY = 22;
+      await tryAddLogo(getPublicCeevaLogoUrl());
+    } catch (e2) {
+      console.error('Error loading logo for PDF, skipping.', e2);
+      startY = 15;
     }
   }
-  
-  if (schoolSettings?.school_name) {
-      doc.setFontSize(16);
-      doc.text(schoolSettings.school_name, 50, startY);
+
+  if (resolvedName) {
+    doc.setFontSize(16);
+    doc.text(resolvedName, 50, startY);
   }
-  
+
   doc.setFontSize(18);
   doc.text(title, doc.internal.pageSize.getWidth() / 2, startY + 15, { align: 'center' });
 

@@ -18,6 +18,7 @@ import {
   Tags
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { resolveSchoolDisplayName } from '@/lib/utils';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', section: 'dashboard' },
@@ -55,15 +56,13 @@ const Sidebar = ({ activeSection, setActiveSection, schoolSettings, profile }) =
       className="flex flex-col w-64 bg-slate-900/80 backdrop-blur-lg text-white border-r border-slate-700/50"
     >
       <div className="p-6 flex items-center space-x-4 border-b border-slate-700/50">
-        {schoolSettings?.logo_url ? (
-          <img src={schoolSettings.logo_url} alt="Logo de la Escuela" className="h-12 w-12 rounded-full object-cover" />
-        ) : (
-          <div className="h-12 w-12 rounded-full bg-purple-500 flex items-center justify-center text-2xl font-bold">
-            {schoolSettings?.school_name ? schoolSettings.school_name.charAt(0) : 'C'}
-          </div>
-        )}
+        <img
+          src={schoolSettings?.logo_url || '/logo-ceeva.png'}
+          alt={resolveSchoolDisplayName(schoolSettings)}
+          className="h-12 w-12 rounded-full object-cover bg-white/10"
+        />
         <div>
-          <p className="font-semibold text-lg">{schoolSettings?.school_name || import.meta.env.VITE_SCHOOL_NAME}</p>
+          <p className="font-semibold text-lg">{resolveSchoolDisplayName(schoolSettings)}</p>
           <p className="text-xs text-slate-400">Zapopan, Jalisco</p>
         </div>
       </div>

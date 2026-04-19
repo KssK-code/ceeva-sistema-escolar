@@ -43,7 +43,7 @@ serve(async (req) => {
     let subject = '';
     let emailContent = '';
     
-    const schoolName = 'CEVM System';
+    const schoolName = Deno.env.get('SCHOOL_DISPLAY_NAME') ?? 'CEEVA';
     const paymentDate = payment.payment_date ? new Date(payment.payment_date).toLocaleDateString('es-MX') : 'Por definir';
     
     switch (emailType) {

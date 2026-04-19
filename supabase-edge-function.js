@@ -25,6 +25,8 @@ serve(async (req) => {
       throw new Error('Student email is required')
     }
 
+    const schoolDisplayName = Deno.env.get('SCHOOL_DISPLAY_NAME') ?? 'CEEVA'
+
     // Try multiple logo sources for better compatibility
     const logoUrl = 'https://gvrgepdjxzhgqkmtwcvs.supabase.co/storage/v1/object/public/schoolassets/logo.png'
     const fallbackLogoUrl = 'https://via.placeholder.com/80x80/667eea/ffffff?text=[INICIALES]'
@@ -45,7 +47,7 @@ serve(async (req) => {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; color: white; border-radius: 10px 10px 0 0;">
           ${logoHtml}
-          <h1 style="margin: 0; font-size: 28px;">[NOMBRE_ESCUELA]</h1>
+          <h1 style="margin: 0; font-size: 28px;">${schoolDisplayName}</h1>
           <p style="margin: 10px 0 0 0; opacity: 0.9;">Comprobante de Pago</p>
         </div>
         <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
@@ -73,7 +75,7 @@ serve(async (req) => {
           <p style="color: #666; line-height: 1.6;">Gracias por su pago puntual. Si tiene alguna pregunta, no dude en contactarnos.</p>
           
           <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-            <p style="color: #999; font-size: 14px; margin: 0;">[NOMBRE_ESCUELA]</p>
+            <p style="color: #999; font-size: 14px; margin: 0;">${schoolDisplayName}</p>
             <p style="color: #999; font-size: 14px; margin: 5px 0 0 0;">Comprobante generado automáticamente</p>
           </div>
         </div>

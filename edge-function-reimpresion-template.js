@@ -63,7 +63,7 @@ serve(async (req) => {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; color: white; border-radius: 10px 10px 0 0;">
           ${logoHtml}
-          <h1 style="margin: 0; font-size: 28px;">[NOMBRE DE TU ESCUELA]</h1>
+          <h1 style="margin: 0; font-size: 28px;">${Deno.env.get('SCHOOL_DISPLAY_NAME') ?? 'CEEVA'}</h1>
           <p style="margin: 10px 0 0 0; opacity: 0.9;">Comprobante de Pago</p>
           ${isReprint ? `<div style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; margin-top: 10px; font-size: 14px; font-weight: bold;">📄 Re impresión de tu pago del día: ${payment.payment_date || payment.paid_date || new Date().toLocaleDateString('es-MX')}</div>` : ''}
         </div>
@@ -92,7 +92,7 @@ serve(async (req) => {
           <p style="color: #666; line-height: 1.6;">Gracias por su pago puntual. Si tiene alguna pregunta, no dude en contactarnos.</p>
           
           <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-            <p style="color: #999; font-size: 14px; margin: 0;">[NOMBRE DE TU ESCUELA]</p>
+            <p style="color: #999; font-size: 14px; margin: 0;">${Deno.env.get('SCHOOL_DISPLAY_NAME') ?? 'CEEVA'}</p>
             <p style="color: #999; font-size: 14px; margin: 5px 0 0 0;">Comprobante generado automáticamente</p>
           </div>
         </div>

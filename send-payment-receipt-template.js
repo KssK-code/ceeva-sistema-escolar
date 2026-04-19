@@ -30,7 +30,7 @@ serve(async (req) => {
     const concept = payment.concept
     const paymentDate = payment.payment_date || payment.paid_date || new Date().toLocaleDateString('es-MX')
     const receiptNumber = payment.receipt_number
-    const schoolName = "NOMBRE_ESCUELA" // PERSONALIZAR AQUÍ
+    const schoolName = Deno.env.get('SCHOOL_DISPLAY_NAME') ?? 'CEEVA'
     const debtAmount = payment.debt_amount || 0
     const debtDescription = payment.debt_description || ""
 

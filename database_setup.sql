@@ -170,7 +170,7 @@ INSERT INTO school_settings (
     notifications_overdue_payments,
     notifications_upcoming_payments
 ) VALUES (
-    '[NOMBRE_ESCUELA]',
+    'CEEVA',
     'admin@[DOMINIO_ESCUELA]',
     true,
     true

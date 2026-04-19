@@ -11,6 +11,7 @@ import { supabase } from '@/lib/customSupabaseClient';
 import { format, parseISO } from 'date-fns';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { resolveSchoolDisplayName, getPublicCeevaLogoUrl } from '@/lib/utils';
 
 const AccountStatementSection = ({ students, schoolSettings }) => {
   const [selectedStudentId, setSelectedStudentId] = useState('');
@@ -103,38 +104,48 @@ const AccountStatementSection = ({ students, schoolSettings }) => {
     try {
       const doc = new jsPDF();
       let startY = 15;
+      const resolvedSchoolName = resolveSchoolDisplayName(schoolSettings);
 
-      if (schoolSettings?.logo_url) {
-        try {
-          const response = await fetch(schoolSettings.logo_url);
-          const blob = await response.blob();
-          const imgData = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
-      
-          const img = new Image();
-          img.src = imgData;
-          await new Promise(resolve => { img.onload = resolve });
+      const tryHeaderLogo = async (url) => {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('logo fetch failed');
+        const blob = await response.blob();
+        const imgData = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+        const img = new Image();
+        img.src = imgData;
+        await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; });
+        const imgWidth = 40;
+        const imgHeight = (img.height * imgWidth) / img.width;
+        const fmt = String(imgData).toLowerCase().includes('jpeg') ? 'JPEG' : 'PNG';
+        doc.addImage(imgData, fmt, 15, startY, imgWidth, imgHeight);
+        startY += imgHeight + 5;
+      };
 
-          const imgWidth = 40;
-          const imgHeight = (img.height * imgWidth) / img.width;
-          
-          doc.addImage(imgData, 'PNG', 15, startY, imgWidth, imgHeight);
-          startY += imgHeight + 5; 
-        } catch (e) {
-          console.error("Error loading logo for PDF, using text instead.", e);
-          if (schoolSettings?.school_name) {
-            doc.setFontSize(20);
-            doc.text(schoolSettings.school_name, 15, startY + 5);
-            startY += 10;
-          }
+      let headerLogoOk = false;
+      try {
+        if (schoolSettings?.logo_url) {
+          await tryHeaderLogo(schoolSettings.logo_url);
+          headerLogoOk = true;
+        } else {
+          throw new Error('no remote logo');
         }
-      } else if (schoolSettings?.school_name) {
+      } catch (e) {
+        try {
+          await tryHeaderLogo(getPublicCeevaLogoUrl());
+          headerLogoOk = true;
+        } catch (e2) {
+          console.error('Error loading logo for PDF, using text instead.', e2);
+        }
+      }
+
+      if (!headerLogoOk && resolvedSchoolName) {
         doc.setFontSize(20);
-        doc.text(schoolSettings.school_name, 15, startY + 5);
+        doc.text(resolvedSchoolName, 15, startY + 5);
         startY += 10;
       }
       
